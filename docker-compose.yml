@@ -1,0 +1,15 @@
+services:
+  # Frontend Vue.js application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reaskrindo_frontend
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # Use host network to access backend running on host machine
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
