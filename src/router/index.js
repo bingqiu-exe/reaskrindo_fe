@@ -2,11 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import SpreadingAsumView from "@/views/asum/ImportSpreadingAsum.vue";
 
 const routes = [
-  // Redirect base path to default (Premi)
-  {
-    path: "/spread-asum",
-    redirect: "/spread-asum/premi",
-  },
   // Parameterized route for Premi / Klaim / Subrograsi
   {
     path: "/spread-asum/:mode",

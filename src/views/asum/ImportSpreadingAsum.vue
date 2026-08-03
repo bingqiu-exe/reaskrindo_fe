@@ -237,8 +237,10 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router';
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { 
@@ -273,16 +275,39 @@ const parsedData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-// --- API Endpoint Setup ---
+const route = useRoute();
+
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/asum/api/import-soa-asum/`
 
-// --- Table Schema Configuration ---
-// Matches the exact uppercase keys returned by Django service process_asum_allocation_premi
+const syncModeWithRoute = () => {
+  const mode = route.params.mode?.toLowerCase();
+  if (mode && ['premi', 'klaim', 'subrograsi'].includes(mode)) {
+    selectedMode.value = mode;
+  } else {
+    selectedMode.value = 'premi';
+  }
+};
+
+onMounted(() => {
+  syncModeWithRoute();
+});
+
+watch(
+  () => route.params.mode,
+  () => {
+    syncModeWithRoute();
+    resetPreview();
+  }
+);
+
+
 const premiColumns = [
   { key: 'Policy No.', label: 'Policy No.', bold: true },
   { key: 'Insured Name', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
+  { key: 'Inception', label: 'Inception' },
+  { key: 'Expiry', label: 'Expiry' },
   { key: 'Currency', label: 'Curr' },
   { key: 'UY', label: 'UY' },
   { key: 'TSI Share', label: 'TSI Share', align: 'right', type: 'currency' },
@@ -292,18 +317,25 @@ const premiColumns = [
   { key: 'komisi_sp', label: 'Komisi SP', align: 'right', type: 'currency' }
 ]
 
-// Matches the exact uppercase keys returned by Django service process_asum_allocation_claim
 const klaimColumns = [
   { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
+  { key: 'POLICYREF NUMBER', label: 'Policy Ref. No.', bold: true },
   { key: 'THE INSURED', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
+  { key: 'INCEPTION', label: 'Inception' },
+  { key: 'EXPIRY', label: 'Expiry' },
+  { key: 'DOL', label: 'DOL_DATE' },
   { key: 'CURRENCY', label: 'Curr' },
   { key: 'UW YEAR', label: 'UY' },
   { key: 'CLAIM AMOUNT', label: 'Claim Amount', align: 'right', type: 'currency' },
+  { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
+  { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
   { key: 'broker_used', label: 'Broker' },
   { key: 'security_used', label: 'Security' },
-  { key: 'multiplied_quota_share', label: 'QS Share', align: 'right', type: 'currency' },
-  { key: 'multiplied_surplus', label: 'SP Share', align: 'right', type: 'currency' }
+  { key: 'share_qs_panel_of_share_reas', label: 'QS Share', align: 'right', type: 'percent' },
+  { key: 'share_sp_panel_of_share_reas', label: 'SP Share', align: 'right', type: 'percent' },
+  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
+  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' }
 ]
 
 const subrograsiColumns = [...klaimColumns]
