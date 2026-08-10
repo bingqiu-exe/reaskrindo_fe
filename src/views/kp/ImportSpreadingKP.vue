@@ -1,11 +1,11 @@
 <template>
   <div class="page-wrapper">
     <!-- Main Content Body -->
-    <div class="finance-container">
+    <div class="kp-container">
       <!-- Header Section -->
       <header class="page-header">
         <div class="header-content">
-          <h1 class="page-title">Import Data {{ formattedMode }} Finance</h1>
+          <h1 class="page-title">Import Data {{ formattedMode }} Kredit Program</h1>
           <div class="mode-selector">
             <label for="mode-select" class="mode-label">Tipe:</label>
             <div class="select-wrapper">
@@ -278,7 +278,7 @@ const pageSize = ref(10)
 const route = useRoute();
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
-const IMPORT_PLACEMENT_API = `${API_BASE_URL}/finance/api/import-soa-finance/`
+const IMPORT_PLACEMENT_API = `${API_BASE_URL}/kredit_program/api/import-soa-kp/`
 
 const syncModeWithRoute = () => {
   const mode = route.params.mode?.toLowerCase();
@@ -301,14 +301,13 @@ watch(
   }
 );
 
-
 const premiColumns = [
-  { key: 'NO_SERTIFIKAT', label: 'No. Sertifikat', bold: true },
+  { key: 'CERTIFICATE NO', label: 'No. Sertifikat', bold: true },
   { key: 'NAMA DEBITUR', label: 'Nama Debitur' },
   { key: 'COB', label: 'COB' },
   { key: 'TANGGAL_AWAL', label: 'Tanggal Awal' },
   { key: 'TANGGAL_AKHIR', label: 'Tanggal Akhir' },
-  { key: 'CURRENCY', label: 'Valuta' },
+  { key: 'CURRENCY', label: 'Curr' },
   { key: 'UW YEAR', label: 'UY' },
   { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
   { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
@@ -325,14 +324,14 @@ const premiColumns = [
 ]
 
 const klaimColumns = [
-  { key: 'NO_SERTIFIKAT', label: 'No. Sertifikat', bold: true },
-  { key: 'NO_KLAIM', label: 'No. Klaim', bold: true },
+  { key: 'CERTIFICATE NO', label: 'No. Sertifikat', bold: true },
+  { key: 'CLAIM NO', label: 'No. Registrasi', bold: true },
   { key: 'NAMA DEBITUR', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
   { key: 'TANGGAL_AWAL', label: 'Tanggal Awal' },
   { key: 'TANGGAL_AKHIR', label: 'Tanggal Akhir' },
-  { key: 'DOL_DATE', label: 'DOL_DATE' },
-  { key: 'CURRENCY', label: 'Valuta' },
+  { key: 'DOL', label: 'DOL_DATE' },
+  { key: 'CURRENCY', label: 'Curr' },
   { key: 'UW YEAR', label: 'UY' },
   { key: 'CLAIM_AMOUNT', label: 'Claim Amount', align: 'right', type: 'currency' },
   { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
@@ -458,7 +457,7 @@ const processFiles = async () => {
     hasPreviewData.value = true
     currentPage.value = 1
   } catch (err) {
-    console.error('Error importing FINANCE data:', err)
+    console.error('Error importing KREDIT PROGRAM data:', err)
     errorMessage.value = err.response?.data?.error || err.response?.data?.message || 'Gagal memproses file. Pastikan format file sesuai.'
     hasPreviewData.value = false
   } finally {
@@ -494,7 +493,7 @@ const downloadFile = async (format) => {
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     const dateStr = new Date().toISOString().slice(0, 10)
-    link.download = `FINANCE_Spreading_${formattedMode.value}_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
+    link.download = `KREDIT PROGRAM_Spreading_${formattedMode.value}_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
     link.click()
     window.URL.revokeObjectURL(link.href)
 
@@ -520,7 +519,7 @@ const downloadFile = async (format) => {
 </script>
 <style scoped>
 /* Modern Resets & Base Variables */
-.finance-container {
+.kp-container {
   --primary-color: #1e3a8a;
   --primary-hover: #1d4ed8;
   --bg-light-blue: #f0f4f9;

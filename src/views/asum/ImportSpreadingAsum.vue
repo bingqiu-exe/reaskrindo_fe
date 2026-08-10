@@ -303,23 +303,31 @@ watch(
 
 
 const premiColumns = [
-  { key: 'Policy No.', label: 'Policy No.', bold: true },
-  { key: 'Insured Name', label: 'Insured Name' },
+  { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
+  { key: 'CERTIFICATE NO', label: 'No. Sertifikat', bold: true },
+  { key: 'INSURED NAME', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
-  { key: 'Inception', label: 'Inception' },
-  { key: 'Expiry', label: 'Expiry' },
-  { key: 'Currency', label: 'Curr' },
-  { key: 'UY', label: 'UY' },
-  { key: 'TSI Share', label: 'TSI Share', align: 'right', type: 'currency' },
+  { key: 'INCEPTION', label: 'Period of Ins. AWAL' },
+  { key: 'EXPIRY', label: 'Period of Ins. AKHIR' },
+  { key: 'CURRENCY', label: 'Curr' },
+  { key: 'UW YEAR', label: 'UY' },
+  { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
+  { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
   { key: 'broker_used', label: 'Broker' },
   { key: 'security_used', label: 'Security' },
-  { key: 'komisi_qs', label: 'Komisi QS', align: 'right', type: 'currency' },
-  { key: 'komisi_sp', label: 'Komisi SP', align: 'right', type: 'currency' }
+  { key: 'share_qs_panel_of_share_reas', label: 'QS Share', align: 'right', type: 'percent' },
+  { key: 'share_sp_panel_of_share_reas', label: 'SP Share', align: 'right', type: 'percent' },
+  { key: 'komisi_qs_per_panel', label: 'Komisi QS', align: 'right', type: 'percent' },
+  { key: 'komisi_sp_per_panel', label: 'Komisi SP', align: 'right', type: 'percent' },
+  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
+  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' },
+  { key: 'multiplied_komisi_qs', label: 'Komisi QS Share Amt', align: 'right', type: 'currency' },
+  { key: 'multiplied_komisi_sp', label: 'Komisi SP Share Amt', align: 'right', type: 'currency' },
 ]
 
 const klaimColumns = [
   { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
-  { key: 'POLICYREF NUMBER', label: 'Policy Ref. No.', bold: true },
+  { key: 'NOMOR REGISTRASI', label: 'No. Registrasi', bold: true },
   { key: 'THE INSURED', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
   { key: 'INCEPTION', label: 'Inception' },
