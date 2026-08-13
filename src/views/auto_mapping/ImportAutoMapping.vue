@@ -54,6 +54,15 @@
                   <div class="label-group">
                     <span class="box-label">Dataset Referensi</span>
                     <span class="box-sublabel">Klik atau tarik file ke sini (Opsional)</span>
+                    
+                    <!-- TAMBAHKAN DISINI: Tautan unduh template bawaan -->
+                    <div class="template-download-links" @click.stop>
+                      <small class="text-hint">Unduh Referensi Default: </small>
+                      <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('xlsx')">Excel</a>
+                      <span class="divider"> | </span>
+                      <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('csv')">CSV</a>
+                    </div>
+
                   </div>
                 </template>
                 <template v-else>
@@ -125,7 +134,6 @@
         </div>
       </section>
 
-      <!-- Right Card: Preview & Results -->
       <!-- Right Card: Preview & Results -->
       <section class="card preview-card">
         <div class="card-header">
@@ -218,6 +226,7 @@ import {
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/auto-mapping/api/process/`
+const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
 // State Definitions
 const mainFile = ref(null)
@@ -332,6 +341,41 @@ const processMapping = async () => {
     }
   } finally {
     isLoading.value = false
+  }
+}
+
+const downloadRefTemplate = async (format) => {
+  errorMessage.value = ''
+  
+  try {
+    // Lakukan request GET biner ke backend
+    const response = await axios.get(`${DOWNLOAD_REF_API}?format=${format}`, {
+      responseType: 'blob'
+    })
+    
+    const targetFilename = format === 'csv' ? 'mapping toc ke cob.csv' : 'mapping toc ke cob.xlsx'
+
+    const downloadBlob = new Blob([response.data])
+    const url = window.URL.createObjectURL(downloadBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', targetFilename)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (err) {
+    if (err.response && err.response.data instanceof Blob) {
+      const text = await err.response.data.text()
+      try {
+        const json = JSON.parse(text)
+        errorMessage.value = json.error || 'Gagal mengunduh template referensi.'
+      } catch {
+        errorMessage.value = 'Template referensi tidak ditemukan pada server.'
+      }
+    } else {
+      errorMessage.value = `Gagal mengunduh file referensi template format ${format.toUpperCase()}.`
+    }
   }
 }
 
@@ -745,6 +789,27 @@ const downloadFile = async (format) => {
   font-size: 0.75rem;
   color: #16a34a;
   font-weight: 500;
+}
+
+.template-download-links {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  z-index: 10;
+}
+.link-download-ref {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+  padding: 2px 4px;
+}
+.link-download-ref:hover {
+  color: #1d4ed8;
+}
+.divider {
+  color: #cbd5e1;
+}
+.text-hint {
+  color: #64748b;
 }
 
 /* Download Footer */

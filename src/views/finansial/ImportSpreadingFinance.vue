@@ -5,9 +5,12 @@
       <!-- Header Section -->
       <header class="page-header">
         <div class="header-content">
-          <h1 class="page-title">Import Data {{ formattedMode }} Finance</h1>
+          <div class="title-group">
+            <h1 class="page-title">Import Data {{ formattedMode }} Finance</h1>
+            <p class="page-subtitle">Unggah berkas referensi dan dataset utama untuk memproses data spreading.</p>
+          </div>
           <div class="mode-selector">
-            <label for="mode-select" class="mode-label">Tipe:</label>
+            <label for="mode-select" class="mode-label">Tipe Data:</label>
             <div class="select-wrapper">
               <select id="mode-select" v-model="selectedMode" @change="handleModeChange" class="custom-select">
                 <option value="premi">Premi</option>
@@ -19,6 +22,15 @@
         </div>
       </header>
 
+      <!-- Error Alert Stack -->
+      <div v-if="errorMessage" class="alert alert-error">
+        <AlertCircleIcon class="alert-icon" />
+        <div class="alert-content">{{ errorMessage }}</div>
+        <button type="button" class="alert-close" @click="errorMessage = ''">
+          <XIcon class="close-icon" />
+        </button>
+      </div>
+
       <!-- Main Workspace (Two-Column Layout) -->
       <main class="workspace-grid">
         <!-- Left Column: File Upload Box -->
@@ -28,73 +40,89 @@
           </div>
           <div class="card-body">
             <div class="dropzone-wrapper">
-              <h3 class="zone-title">Upload file</h3>
               
-              <!-- Reference File Dropzone -->
-              <div 
-                class="drop-box" 
-                :class="{ 'is-dragging': isDraggingRef, 'has-file': refFile }"
-                @dragover.prevent="isDraggingRef = true"
-                @dragleave.prevent="isDraggingRef = false"
-                @drop.prevent="handleDrop($event, 'ref')"
-                @click="$refs.refInput.click()"
-              >
-                <input 
-                  ref="refInput" 
-                  type="file" 
-                  accept=".xlsx, .xls, .csv" 
-                  class="hidden-input" 
-                  @change="handleFileSelect($event, 'ref')" 
-                />
-                <div class="box-content">
-                  <template v-if="!refFile">
-                    <UploadCloudIcon class="box-icon" />
-                    <span class="box-label">Upload dataset referensi disini</span>
-                  </template>
-                  <template v-else>
-                    <FileSpreadsheetIcon class="box-icon file-active" />
-                    <div class="file-info">
-                      <span class="file-name">{{ refFile.name }}</span>
-                      <span class="file-meta">{{ formatFileSize(refFile.size) }}</span>
-                    </div>
-                    <button type="button" class="remove-btn" @click.stop="refFile = null; resetPreview()">
-                      <XIcon class="btn-icon" />
-                    </button>
-                  </template>
+              <!-- Dataset Referensi -->
+              <div class="zone-group">
+                <h3 class="zone-title">Dataset Referensi</h3>
+                <div 
+                  class="drop-box" 
+                  :class="{ 'is-dragging': isDraggingRef, 'has-file': refFile }"
+                  @dragover.prevent="isDraggingRef = true"
+                  @dragleave.prevent="isDraggingRef = false"
+                  @drop.prevent="handleDrop($event, 'ref')"
+                  @click="$refs.refInput.click()"
+                >
+                  <input 
+                    ref="refInput" 
+                    type="file" 
+                    accept=".xlsx, .xls, .csv" 
+                    class="hidden-input" 
+                    @change="handleFileSelect($event, 'ref')" 
+                  />
+                  <div class="box-content">
+                    <template v-if="!refFile">
+                      <UploadCloudIcon class="box-icon" />
+                      <div class="label-group">
+                        <span class="box-label">Upload berkas referensi disini</span>
+                        <div class="template-download-links" @click.stop>
+                          <span class="text-hint">Unduh default: </span>
+                          <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('xlsx')">Excel</a>
+                          <span class="divider">|</span>
+                          <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('csv')">CSV</a>
+                        </div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <FileSpreadsheetIcon class="box-icon file-active" />
+                      <div class="file-info">
+                        <span class="file-name">{{ refFile.name }}</span>
+                        <span class="file-meta">{{ formatFileSize(refFile.size) }}</span>
+                      </div>
+                      <button type="button" class="remove-btn" @click.stop="refFile = null; resetPreview()">
+                        <XIcon class="btn-icon" />
+                      </button>
+                    </template>
+                  </div>
                 </div>
               </div>
 
               <!-- Main File Dropzone -->
-              <div 
-                class="drop-box" 
-                :class="{ 'is-dragging': isDraggingMain, 'has-file': mainFile }"
-                @dragover.prevent="isDraggingMain = true"
-                @dragleave.prevent="isDraggingMain = false"
-                @drop.prevent="handleDrop($event, 'main')"
-                @click="$refs.mainInput.click()"
-              >
-                <input 
-                  ref="mainInput" 
-                  type="file" 
-                  accept=".xlsx, .xls, .csv" 
-                  class="hidden-input" 
-                  @change="handleFileSelect($event, 'main')" 
-                />
-                <div class="box-content">
-                  <template v-if="!mainFile">
-                    <UploadCloudIcon class="box-icon" />
-                    <span class="box-label">Upload dataset utama disini</span>
-                  </template>
-                  <template v-else>
-                    <FileSpreadsheetIcon class="box-icon file-active" />
-                    <div class="file-info">
-                      <span class="file-name">{{ mainFile.name }}</span>
-                      <span class="file-meta">{{ formatFileSize(mainFile.size) }}</span>
-                    </div>
-                    <button type="button" class="remove-btn" @click.stop="mainFile = null; resetPreview()">
-                      <XIcon class="btn-icon" />
-                    </button>
-                  </template>
+              <div class="zone-group">
+                <h3 class="zone-title">Dataset Utama</h3>
+                <div 
+                  class="drop-box" 
+                  :class="{ 'is-dragging': isDraggingMain, 'has-file': mainFile }"
+                  @dragover.prevent="isDraggingMain = true"
+                  @dragleave.prevent="isDraggingMain = false"
+                  @drop.prevent="handleDrop($event, 'main')"
+                  @click="$refs.mainInput.click()"
+                >
+                  <input 
+                    ref="mainInput" 
+                    type="file" 
+                    accept=".xlsx, .xls, .csv" 
+                    class="hidden-input" 
+                    @change="handleFileSelect($event, 'main')" 
+                  />
+                  <div class="box-content">
+                    <template v-if="!mainFile">
+                      <UploadCloudIcon class="box-icon" />
+                      <div class="label-group">
+                        <span class="box-label">Upload berkas utama disini</span>
+                        <span class="box-sublabel">Format data utama sistem</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <FileSpreadsheetIcon class="box-icon file-active" />
+                      <div class="file-info">
+                        <span class="file-name">{{ mainFile.name }}</span>
+                        <span class="file-meta">{{ formatFileSize(mainFile.size) }}</span>
+                      </div>
+                      <button type="button" class="remove-btn" @click.stop="mainFile = null; resetPreview()">
+                        <XIcon class="btn-icon" />
+                      </button>
+                    </template>
+                  </div>
                 </div>
               </div>
 
@@ -114,56 +142,52 @@
                 <span>{{ isProcessing ? 'Memproses Data...' : 'Proses Data Spreading' }}</span>
               </button>
             </div>
-
-            <!-- Error Alert -->
-            <div v-if="errorMessage" class="alert alert-error">
-              <AlertCircleIcon class="alert-icon" />
-              <div class="alert-content">{{ errorMessage }}</div>
-            </div>
           </div>
         </section>
 
         <!-- Right Column: SOA Preview Box -->
         <section class="card preview-card">
           <div class="card-header">
-            <h2 class="card-title">SOA preview</h2>
+            <h2 class="card-title">SOA Preview Data</h2>
           </div>
-          <div class="card-body preview-body">
-            <!-- Empty State -->
-            <div v-if="!hasPreviewData && !isProcessing" class="empty-state">
+          
+          <div class="card-body preview-body" :class="{ 'has-data': hasPreviewData && !isProcessing }">
+            <!-- Empty State Layout -->
+            <div v-if="!hasPreviewData && !isProcessing" class="state-container">
               <div class="empty-icon-wrapper">
-                <InfoIcon class="empty-icon"/>
+                <InfoIcon class="empty-icon" />
               </div>
-              <h3 class="empty-title">Belum ada preview</h3>
-              <p class="empty-subtitle">Import data terlebih dahulu!</p>
+              <h3 class="state-title">Belum Ada Preview</h3>
+              <p class="state-sub">Silakan unggah dan selesaikan pengisian berkas di sebelah kiri terlebih dahulu.</p>
             </div>
 
-            <!-- Loading State -->
-            <div v-else-if="isProcessing" class="loading-state">
+            <!-- Pending Loading State -->
+            <div v-else-if="isProcessing" class="state-container">
               <Loader2Icon class="spinner-icon spin" />
-              <p>Sedang mengolah data spreading...</p>
+              <h3 class="state-title">Sedang Memproses</h3>
+              <p class="state-sub">Harap tunggu sebentar, sistem sedang mengolah data spreading...</p>
             </div>
 
-            <!-- Data Preview Result View -->
+            <!-- Success Content View -->
             <div v-else class="preview-results">
               <div class="file-summary-cards">
                 <div class="summary-chip">
                   <FileSpreadsheetIcon class="chip-icon excel" />
                   <div class="chip-text">
                     <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.xlsx</span>
-                    <span class="chip-sub">{{ parsedData.length }} Record(s)</span>
+                    <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
                 <div class="summary-chip">
                   <FileTextIcon class="chip-icon csv" />
                   <div class="chip-text">
                     <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.csv</span>
-                    <span class="chip-sub">{{ parsedData.length }} Record(s)</span>
+                    <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Table Section -->
+              <!-- Data Stream Table Sheet Container -->
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -178,20 +202,21 @@
                       <td 
                         v-for="col in tableColumns" 
                         :key="col.key"
+                        :data-label="col.label"
                         :class="[
                           col.align === 'right' ? 'text-right' : 'text-left',
                           { 'font-semibold': col.bold }
                         ]"
                       >
-                        {{ formatColumnValue(row[col.key], col.type) }}
+                        <span class="cell-value">{{ formatColumnValue(row[col.key], col.type) }}</span>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              <!-- Pagination -->
-              <div class="pagination" v-if="totalPages > 1">
+              <!-- Embedded Small Pagination Wrapper -->
+              <div class="pagination-footer" v-if="totalPages > 1">
                 <button 
                   class="btn-page" 
                   :disabled="currentPage === 1" 
@@ -199,7 +224,7 @@
                 >
                   Sebelumnya
                 </button>
-                <span class="page-info">Halaman {{ currentPage }} dari {{ totalPages }}</span>
+                <span class="page-info">Halaman <strong>{{ currentPage }}</strong> dari {{ totalPages }}</span>
                 <button 
                   class="btn-page" 
                   :disabled="currentPage === totalPages" 
@@ -211,25 +236,25 @@
             </div>
           </div>
 
-          <!-- Card Footer Downloads -->
+          <!-- Component Interactive Action Footer Export -->
           <div class="card-footer download-footer">
             <button 
               type="button" 
               class="btn-download" 
-              :disabled="!hasPreviewData" 
+              :disabled="!hasPreviewData || isProcessing" 
               @click="downloadFile('excel')"
             >
               <DownloadIcon class="download-icon" />
-              <span>Download as Excel</span>
+              <span>Download Excel</span>
             </button>
             <button 
               type="button" 
-              class="btn-download" 
-              :disabled="!hasPreviewData" 
+              class="btn-download btn-secondary-download" 
+              :disabled="!hasPreviewData || isProcessing" 
               @click="downloadFile('csv')"
             >
               <DownloadIcon class="download-icon" />
-              <span>Download as CSV</span>
+              <span>Download CSV</span>
             </button>
           </div>
         </section>
@@ -240,12 +265,11 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { 
   UploadCloudIcon, 
-  FileUpIcon, 
   FileSpreadsheetIcon, 
   XIcon, 
   InfoIcon, 
@@ -275,77 +299,66 @@ const parsedData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-const route = useRoute();
+const route = useRoute()
 
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/finance/api/import-soa-finance/`
+const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
 const syncModeWithRoute = () => {
-  const mode = route.params.mode?.toLowerCase();
+  const mode = route.params.mode?.toLowerCase()
   if (mode && ['premi', 'klaim', 'subrograsi'].includes(mode)) {
-    selectedMode.value = mode;
+    selectedMode.value = mode
   } else {
-    selectedMode.value = 'premi';
+    selectedMode.value = 'premi'
   }
-};
+}
 
 onMounted(() => {
-  syncModeWithRoute();
-});
+  syncModeWithRoute()
+})
 
 watch(
   () => route.params.mode,
   () => {
-    syncModeWithRoute();
-    resetPreview();
+    syncModeWithRoute()
+    resetPreview()
   }
-);
+)
 
-
-const premiColumns = [
-  { key: 'NO_SERTIFIKAT', label: 'No. Sertifikat', bold: true },
-  { key: 'NAMA DEBITUR', label: 'Nama Debitur' },
+const commonColumns = [
+  { key: 'No. Sertifikat', label: 'No. Sertifikat', bold: true },
+  { key: 'No. Klaim', label: 'No. Klaim', bold: true },
+  { key: 'Nama Debitur', label: 'Nama Debitur' },
   { key: 'COB', label: 'COB' },
-  { key: 'TANGGAL_AWAL', label: 'Tanggal Awal' },
-  { key: 'TANGGAL_AKHIR', label: 'Tanggal Akhir' },
-  { key: 'CURRENCY', label: 'Valuta' },
-  { key: 'UW YEAR', label: 'UY' },
-  { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
-  { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
-  { key: 'broker_used', label: 'Broker' },
-  { key: 'security_used', label: 'Security' },
-  { key: 'qs share per panel', label: 'QS Share', align: 'right', type: 'percent' },
-  { key: 'sp share per panel', label: 'SP Share', align: 'right', type: 'percent' },
-  { key: 'komisi_qs_per_panel', label: 'Komisi QS', align: 'right', type: 'percent' },
-  { key: 'komisi_sp_per_panel', label: 'Komisi SP', align: 'right', type: 'percent' },
-  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_komisi_qs', label: 'Komisi QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_komisi_sp', label: 'Komisi SP Share Amt', align: 'right', type: 'currency' },
+  { key: 'Product ID', label: 'Product ID' },
+  { key: 'Tanggal Awal', label: 'Tanggal Awal' },
+  { key: 'Tanggal Akhir', label: 'Tanggal Akhir' },
+  { key: 'DOL Date', label: 'DOL_DATE' },
+  { key: 'Currency', label: 'Valuta' },
+  { key: 'UY Final', label: 'UY' },
+  { key: 'Claim Amount', label: 'Claim Amount', align: 'right', type: 'currency' },
+  { key: 'Quota Share', label: 'Quota Share', align: 'right', type: 'currency' },
+  { key: 'Surplus', label: 'Surplus', align: 'right', type: 'currency' },
+  { key: 'Broker', label: 'Broker' },
+  { key: 'Security', label: 'Security' },
+  { key: 'QS Share', label: 'QS Share', align: 'right', type: 'percent' },
+  { key: 'SP Share', label: 'SP Share', align: 'right', type: 'percent' },
+  { key: 'QS Share Amt', label: 'QS Share Amt', align: 'right', type: 'currency' },
+  { key: 'SP Share Amt', label: 'SP Share Amt', align: 'right', type: 'currency' },
+  { key: 'Premi QS Panel', label: 'Premi QS Panel', align: 'right', type: 'currency' },
+  { key: 'Klaim QS Panel', label: 'Klaim QS Panel', align: 'right', type: 'currency' },
+  { key: 'Komisi QS Panel', label: 'Komisi QS Panel', align: 'right', type: 'currency' },
+  { key: 'Premi SP Panel', label: 'Premi SP Panel', align: 'right', type: 'currency' },
+  { key: 'Klaim SP Panel', label: 'Klaim SP Panel', align: 'right', type: 'currency' },
+  { key: 'Komisi SP Panel', label: 'Komisi SP Panel', align: 'right', type: 'currency' },
+  { key: 'Recoveries QS Panel', label: 'Recoveries QS Panel', align: 'right', type: 'currency' },
+  { key: 'Recoveries SP Panel', label: 'Recoveries SP Panel', align: 'right', type: 'currency' }
 ]
 
-const klaimColumns = [
-  { key: 'NO_SERTIFIKAT', label: 'No. Sertifikat', bold: true },
-  { key: 'NO_KLAIM', label: 'No. Klaim', bold: true },
-  { key: 'NAMA DEBITUR', label: 'Insured Name' },
-  { key: 'COB', label: 'COB' },
-  { key: 'TANGGAL_AWAL', label: 'Tanggal Awal' },
-  { key: 'TANGGAL_AKHIR', label: 'Tanggal Akhir' },
-  { key: 'DOL_DATE', label: 'DOL_DATE' },
-  { key: 'CURRENCY', label: 'Valuta' },
-  { key: 'UW YEAR', label: 'UY' },
-  { key: 'CLAIM_AMOUNT', label: 'Claim Amount', align: 'right', type: 'currency' },
-  { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
-  { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
-  { key: 'broker_used', label: 'Broker' },
-  { key: 'security_used', label: 'Security' },
-  { key: 'qs share per panel', label: 'QS Share', align: 'right', type: 'percent' },
-  { key: 'sp share per panel', label: 'SP Share', align: 'right', type: 'percent' },
-  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' }
-]
-
-const subrograsiColumns = [...klaimColumns]
+const premiColumns = [...commonColumns]
+const klaimColumns = [...commonColumns]
+const subrograsiColumns = [...commonColumns]
 
 // --- Computeds ---
 const formattedMode = computed(() => {
@@ -393,8 +406,10 @@ const formatFileSize = (bytes) => {
 
 const formatColumnValue = (val, type) => {
   if (val === null || val === undefined || val === 'nan' || val === '') return '-'
-  if (type === 'currency' && !isNaN(val)) {
-    return Number(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (!isNaN(val)) {
+    if (type === 'currency') {
+      return Number(val).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
   }
   return val
 }
@@ -411,7 +426,7 @@ const handleFileSelect = (event, type) => {
 }
 
 const handleDrop = (event, type) => {
-  const files = event.dataTransfer.files
+  const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
 
   if (type === 'ref') {
@@ -434,15 +449,12 @@ const processFiles = async () => {
   const formData = new FormData()
   formData.append('main_file', mainFile.value)
   formData.append('reference_file', refFile.value)
-  
   formData.append('jenis_soa', selectedMode.value.toUpperCase())
   formData.append('export_format', 'json')
 
   try {
     const response = await axios.post(IMPORT_PLACEMENT_API, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 120000,
       responseType: 'json',
     })
@@ -466,7 +478,40 @@ const processFiles = async () => {
   }
 }
 
-// --- Dynamic File Download (Backend or Client Fallback) ---
+const downloadRefTemplate = async (format) => {
+  errorMessage.value = ''
+  try {
+    const response = await axios.get(`${DOWNLOAD_REF_API}?format=${format}`, {
+      responseType: 'blob'
+    })
+    
+    const targetFilename = format === 'csv' 
+      ? 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.csv' 
+      : 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.xlsx'
+
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', targetFilename)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (err) {
+    if (err.response && err.response.data instanceof Blob) {
+      const text = await err.response.data.text()
+      try {
+        const json = JSON.parse(text)
+        errorMessage.value = json.error || 'Gagal mengunduh template referensi.'
+      } catch {
+        errorMessage.value = 'Template referensi tidak ditemukan pada server.'
+      }
+    } else {
+      errorMessage.value = `Gagal mengunduh file referensi template format ${format.toUpperCase()}.`
+    }
+  }
+}
+
 const downloadFile = async (format) => {
   if (!canProcess.value) return
 
@@ -518,155 +563,224 @@ const downloadFile = async (format) => {
   }
 }
 </script>
+
 <style scoped>
-/* Modern Resets & Base Variables */
-.finance-container {
-  --primary-color: #1e3a8a;
-  --primary-hover: #1d4ed8;
-  --bg-light-blue: #f0f4f9;
-  --bg-light-orange: #fff8f0;
-  --border-blue: #cbd5e1;
-  --border-orange: #ffedd5;
-  --accent-orange: #ea580c;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.page-wrapper {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--text-main);
+  color: #1e293b;
 }
 
-/* Header Section */
+.hidden-input {
+  display: none;
+}
+
+/* Header UI Layout */
 .page-header {
   margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
 }
+
 .header-content {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
+
 .page-title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
   margin: 0;
 }
+
 .mode-selector {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  background-color: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
+
 .mode-label {
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--text-main);
+  color: #475569;
 }
-.select-wrapper select {
-  padding: 6px 36px 6px 14px;
+
+.custom-select {
+  padding: 6px 24px 6px 10px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   background-color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: #1e293b;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.select-wrapper select:focus {
-  border-color: var(--primary-hover);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
 
-/* Main Grid Layout */
+.custom-select:focus {
+  border-color: #1e3a8a;
+}
+
+/* Alert Notification Banner styling */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.alert-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.alert-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.alert-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #991b1b;
+  display: flex;
+  padding: 2px;
+}
+
+.close-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Workspace Layout structural grids */
 .workspace-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  align-items: stretch;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .workspace-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Base Card Styling */
+/* Unified Card Shell Elements */
 .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: box-shadow 0.2s;
+  min-width: 0; /* Prevents flex children from bursting out of boundaries */
 }
 
 .card-header {
-  text-align: center;
-  padding: 16px 20px 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .card-title {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
+  color: #0f172a;
   margin: 0;
-  color: #1e293b;
 }
 
-/* Left Card: Import Blue Theme */
-.upload-card {
-  background-color: var(--bg-light-blue);
-  border: 1px solid #dbeafe;
-}
-
-.dropzone-wrapper {
-  padding: 16px 24px;
+.card-body {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Advanced Dropzone and File Attachment Blocks */
+.dropzone-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.zone-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .zone-title {
-  font-size: 1.1rem;
+  font-size: 0.825rem;
   font-weight: 600;
-  text-align: center;
-  color: #1e3a8a;
-  margin: 0 0 4px 0;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .drop-box {
-  background-color: #ffffff;
-  border: 2px dashed #94a3b8;
-  border-radius: 10px;
-  padding: 20px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
   cursor: pointer;
+  background-color: #f8fafc;
   transition: all 0.2s ease;
 }
 
-.drop-box:hover, .drop-box.is-dragging {
+.drop-box:hover {
+  border-color: #94a3b8;
+  background-color: #f1f5f9;
+}
+
+.drop-box.is-dragging {
   border-color: #2563eb;
-  background-color: #f8fafc;
+  background-color: #eff6ff;
 }
 
 .drop-box.has-file {
   border-style: solid;
-  border-color: #bfdbfe;
-  background-color: #eff6ff;
+  border-color: #e2e8f0;
+  background-color: #ffffff;
 }
 
 .box-content {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
+  width: 100%;
 }
 
 .box-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   color: #64748b;
   flex-shrink: 0;
 }
@@ -675,23 +789,35 @@ const downloadFile = async (format) => {
   color: #2563eb;
 }
 
+.label-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
 .box-label {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #334155;
+}
+
+.box-sublabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 
 .file-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
   overflow: hidden;
   text-align: left;
 }
 
 .file-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -705,11 +831,11 @@ const downloadFile = async (format) => {
 .remove-btn {
   background: transparent;
   border: none;
-  cursor: pointer;
-  padding: 4px;
-  margin-left: auto;
   color: #94a3b8;
-  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s;
   display: flex;
   align-items: center;
 }
@@ -719,34 +845,62 @@ const downloadFile = async (format) => {
   background-color: #fee2e2;
 }
 
-.hidden-input {
-  display: none;
+.btn-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .file-hint {
-  font-size: 0.825rem;
-  color: #64748b;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 4px;
   text-align: center;
-  margin: 4px 0 0 0;
 }
 
+/* Template download link items inside boxes */
+.template-download-links {
+  margin-top: 4px;
+  font-size: 0.775rem;
+}
+
+.link-download-ref {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+  padding: 0 4px;
+}
+
+.link-download-ref:hover {
+  color: #1d4ed8;
+}
+
+.divider {
+  color: #cbd5e1;
+  margin: 0 2px;
+}
+
+.text-hint {
+  color: #64748b;
+}
+
+/* Lower Section Workspace Sub-Actions */
 .action-bar {
-  padding: 8px 24px 20px;
+  margin-top: 20px;
 }
 
 .btn {
-  width: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  width: 100%;
+  padding: 12px 16px;
   border-radius: 8px;
+  font-size: 0.875rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
   border: none;
-  transition: background-color 0.2s, opacity 0.2s;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
 .btn-primary {
@@ -755,183 +909,257 @@ const downloadFile = async (format) => {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #1e40af;
 }
 
-.btn-primary:disabled {
-  background-color: #94a3b8;
+.btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-.preview-card {
-  background-color: var(--bg-light-orange);
-  border: 1px solid #ffedd5;
-  justify-content: space-between;
-}
-
+/* Preview Sheet Control Blocks */
 .preview-body {
-  padding: 16px;
-  flex-grow: 1;
+  padding: 24px;
+  flex: 1;
   display: flex;
-  flex-direction: column;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  min-height: 240px;
+  min-height: 340px;
+  background-color: #fafafa;
+  min-width: 0;
+}
+
+.preview-body.has-data {
+  display: block;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.state-container {
   text-align: center;
-}
-
-.empty-icon-wrapper {
-  background-color: #ffedd5;
-  border-radius: 50%;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-
-.empty-icon {
-  width: 36px;
-  height: 36px;
-  color: var(--accent-orange);
-}
-
-.empty-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--accent-orange);
-  margin: 0 0 4px 0;
-}
-
-.empty-subtitle {
-  font-size: 0.9rem;
-  color: #9a3412;
-  margin: 0;
-}
-
-.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 240px;
-  color: var(--accent-orange);
-  font-weight: 500;
+  max-width: 320px;
 }
 
 .spinner-icon {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 8px;
+  width: 36px;
+  height: 36px;
+  color: #1e3a8a;
+  margin-bottom: 12px;
 }
 
-/* Dynamic Data View in Preview Box */
+.empty-icon-wrapper {
+  background-color: #f1f5f9;
+  padding: 16px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  width: 28px;
+  height: 28px;
+  color: #64748b;
+}
+
+.state-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px 0;
+}
+
+.state-sub {
+  font-size: 0.825rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Processed Table & Result List Section */
 .preview-results {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  height: 100%;
+  gap: 16px;
+  min-width: 0;
 }
 
 .file-summary-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .file-summary-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 .summary-chip {
-  background: #ffffff;
-  border: 1px solid #fed7aa;
-  border-radius: 8px;
-  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  overflow: hidden;
 }
 
 .chip-icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
 .chip-icon.excel { color: #16a34a; }
-.chip-icon.csv { color: #2563eb; }
+.chip-icon.csv { color: #0284c7; }
 
 .chip-text {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  text-align: left;
 }
 
 .chip-title {
-  font-size: 0.8rem;
+  font-size: 0.815rem;
   font-weight: 600;
-  color: #334155;
+  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .chip-sub {
-  font-size: 0.7rem;
-  color: #64748b;
+  font-size: 0.725rem;
+  color: #16a34a;
+  font-weight: 500;
 }
 
+/* Dynamic & Constrained Datatable Elements */
 .table-container {
+  width: 100%;
   overflow-x: auto;
-  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  border: 1px solid #fed7aa;
-  max-height: 240px;
+  max-height: 320px;
+  background: #ffffff;
+  /* Smooth internal scrolling for desktop layouts */
+  -webkit-overflow-scrolling: touch; 
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.815rem;
+  text-align: left;
 }
 
 .data-table th, .data-table td {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid #f1f5f9;
   white-space: nowrap;
 }
 
 .data-table th {
-  background-color: #fff7ed;
-  color: #9a3412;
+  background-color: #f8fafc;
+  color: #475569;
   font-weight: 600;
   position: sticky;
   top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .text-left { text-align: left; }
 .text-right { text-align: right; }
 .font-semibold { font-weight: 600; }
 
-.pagination {
+/* Dynamic Mobile Transformation CSS (Busts Table down to Cards on Mobile Screens) */
+@media (max-width: 640px) {
+  .table-container {
+    max-height: none; /* Let column stacks expand naturally */
+    border: none;
+  }
+
+  .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+    display: block;
+  }
+
+  .data-table thead {
+    display: none; /* Hide traditional headers */
+  }
+
+  .data-table tr {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px dashed #f1f5f9;
+    white-space: normal; /* Wraps long text inside rows */
+    text-align: right !important; /* Force data right */
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Insert Dynamic Labels using attribute reflection mapping */
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.775rem;
+    text-align: left;
+    padding-right: 8px;
+  }
+  
+  .cell-value {
+    max-width: 60%;
+    word-break: break-word;
+  }
+}
+
+/* Micro Pagination Strip */
+.pagination-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 8px;
+  padding-top: 4px;
+  gap: 8px;
 }
 
 .btn-page {
   background-color: #ffffff;
-  border: 1px solid #fdba74;
-  color: #c2410c;
-  padding: 4px 10px;
-  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 5px 12px;
+  border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-page:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
 }
 
 .btn-page:disabled {
@@ -940,75 +1168,63 @@ const downloadFile = async (format) => {
 }
 
 .page-info {
-  font-size: 0.75rem;
-  color: #9a3412;
+  font-size: 0.775rem;
+  color: #64748b;
+  white-space: nowrap;
 }
 
-/* Footer Export Buttons */
+/* Card Final Data Export Footers */
 .download-footer {
-  border-top: 1px solid #fed7aa;
+  padding: 16px 20px;
+  border-top: 1px solid #f1f5f9;
   display: flex;
-  flex-direction: column;
+  gap: 12px;
+  background-color: #f8fafc;
+  flex-wrap: wrap;
 }
 
 .btn-download {
-  width: 100%;
-  background-color: transparent;
-  border: none;
-  padding: 12px 16px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--accent-orange);
-  display: flex;
+  flex: 1;
+  min-width: 130px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #16a34a;
+  color: #ffffff;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-download:not(:last-child) {
-  border-bottom: 1px solid #fed7aa;
+  transition: background-color 0.15s;
 }
 
 .btn-download:hover:not(:disabled) {
-  background-color: #ffedd5;
+  background-color: #15803d;
+}
+
+.btn-secondary-download {
+  background-color: #0284c7;
+}
+
+.btn-secondary-download:hover:not(:disabled) {
+  background-color: #0369a1;
 }
 
 .btn-download:disabled {
-  color: #cbd5e1;
+  background-color: #e2e8f0;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
 .download-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
-/* Alert Container */
-.alert {
-  margin: 0 24px 16px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.85rem;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-}
-
-.alert-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-/* Base Utility Animations */
+/* Utility Animations */
 .spin {
   animation: spin 1s linear infinite;
 }

@@ -1,10 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
 import ImportAutoMapping from "../views/auto_mapping/ImportAutoMapping.vue";
 import ImportSpreadingAsum from "../views/asum/ImportSpreadingAsum.vue";
 import ImportSpreadingFinance from "../views/finansial/ImportSpreadingFinance.vue";
 import ImportSpreadingKP from "../views/kp/ImportSpreadingKP.vue";
 
 const routes = [
+  {
+    path: "/home/",
+    name: "home",
+    component: HomeView,
+    meta: { isPublic: true },
+  },
   {
     path: "/auto-mapping/",
     name: "auto-mapping",
