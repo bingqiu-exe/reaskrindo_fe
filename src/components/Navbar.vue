@@ -3,7 +3,7 @@
     <div class="header-container">
       <!-- Logo -->
       <div class="logo">
-        <router-link to="/home/" class="logo-link">
+        <router-link to="/" class="logo-link">
           <img src="@/assets/logo-askrindo-ifg.png" alt="Logo" class="logo-image" />
         </router-link>
       </div>

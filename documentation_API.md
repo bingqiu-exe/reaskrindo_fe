@@ -1,5 +1,5 @@
 # HOME
-http://localhost:8000/home/
+http://localhost:8000/
 
 # ASUM
 ### PREMI

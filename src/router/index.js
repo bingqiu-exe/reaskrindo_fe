@@ -7,7 +7,7 @@ import ImportSpreadingKP from "../views/kp/ImportSpreadingKP.vue";
 
 const routes = [
   {
-    path: "/home/",
+    path: "/",
     name: "home",
     component: HomeView,
     meta: { isPublic: true },

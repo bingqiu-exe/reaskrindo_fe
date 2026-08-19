@@ -31,116 +31,132 @@
 
       <!-- Main Workspace (Two-Column Grid) -->
       <main class="workspace-grid">
-        <!-- Left Column: File Upload Area -->
-        <section class="card upload-card">
-          <div class="card-header">
-            <h2 class="card-title">Unggah Dataset ({{ selectedMode }})</h2>
-          </div>
-          <div class="card-body">
-            <div class="dropzone-wrapper">
-              <!-- Reference File Dropzone -->
-              <div class="zone-group">
-                <h3 class="zone-title">Dataset Referensi</h3>
-                <div 
-                  class="drop-box" 
-                  :class="{ 'is-dragging': isDraggingRef, 'has-file': refFile }"
-                  @dragover.prevent="isDraggingRef = true"
-                  @dragleave.prevent="isDraggingRef = false"
-                  @drop.prevent="handleDrop($event, 'ref')"
-                  @click="$refs.refInput.click()"
-                >
-                  <input 
-                    ref="refInput" 
-                    type="file" 
-                    accept=".xlsx, .xls, .csv" 
-                    class="hidden-input" 
-                    @change="handleFileSelect($event, 'ref')" 
-                  />
-                  <div class="box-content">
-                    <template v-if="!refFile">
-                      <UploadCloudIcon class="box-icon" />
-                      <div class="label-group">
-                        <span class="box-label">Upload berkas referensi disini</span>
-                        <div class="template-download-links" @click.stop>
-                          <span class="text-hint">Unduh default: </span>
-                          <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('xlsx')">Excel</a>
-                          <span class="divider">|</span>
-                          <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('csv')">CSV</a>
+        <!-- Left Column: File Upload Area & Important Note Card -->
+        <div class="left-column">
+          <!-- Card Catatan / Instruksi PENTING -->
+          <section class="card note-card">
+            <div class="card-body note-body">
+              <div class="note-header">
+                <LightbulbIcon class="note-icon" />
+                <h3 class="note-title">PENTING</h3>
+              </div>
+              <p class="note-text">
+                Pastikan dataset utama memiliki <strong>primary key</strong> kombinasi dari <strong>UY</strong> dan <strong>COB</strong> atau <strong>product_id</strong> (contoh: <code>2023KUS</code>, <code>KUS-2023</code>, atau <code>2023CONSUMPTIVE CREDIT</code>) sesuai dengan yang ada di data referensi.
+              </p>
+            </div>
+          </section>
+
+          <!-- Upload Card -->
+          <section class="card upload-card">
+            <div class="card-header">
+              <h2 class="card-title">Unggah Dataset ({{ selectedMode }})</h2>
+            </div>
+            <div class="card-body">
+              <div class="dropzone-wrapper">
+                <!-- Reference File Dropzone -->
+                <div class="zone-group">
+                  <h3 class="zone-title">Dataset Referensi</h3>
+                  <div 
+                    class="drop-box" 
+                    :class="{ 'is-dragging': isDraggingRef, 'has-file': refFile }"
+                    @dragover.prevent="isDraggingRef = true"
+                    @dragleave.prevent="isDraggingRef = false"
+                    @drop.prevent="handleDrop($event, 'ref')"
+                    @click="$refs.refInput.click()"
+                  >
+                    <input 
+                      ref="refInput" 
+                      type="file" 
+                      accept=".xlsx, .xls, .csv" 
+                      class="hidden-input" 
+                      @change="handleFileSelect($event, 'ref')" 
+                    />
+                    <div class="box-content">
+                      <template v-if="!refFile">
+                        <UploadCloudIcon class="box-icon" />
+                        <div class="label-group">
+                          <span class="box-label">Upload berkas referensi disini</span>
+                          <div class="template-download-links" @click.stop>
+                            <span class="text-hint">Unduh default: </span>
+                            <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('xlsx')">Excel</a>
+                            <span class="divider">|</span>
+                            <a href="#" class="link-download-ref" @click.prevent="downloadRefTemplate('csv')">CSV</a>
+                          </div>
                         </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <FileSpreadsheetIcon class="box-icon file-active" />
-                      <div class="file-info">
-                        <span class="file-name">{{ refFile.name }}</span>
-                        <span class="file-meta">{{ formatFileSize(refFile.size) }}</span>
-                      </div>
-                      <button type="button" class="remove-btn" @click.stop="refFile = null; resetPreview()">
-                        <XIcon class="btn-icon" />
-                      </button>
-                    </template>
+                      </template>
+                      <template v-else>
+                        <FileSpreadsheetIcon class="box-icon file-active" />
+                        <div class="file-info">
+                          <span class="file-name">{{ refFile.name }}</span>
+                          <span class="file-meta">{{ formatFileSize(refFile.size) }}</span>
+                        </div>
+                        <button type="button" class="remove-btn" @click.stop="refFile = null; resetPreview()">
+                          <XIcon class="btn-icon" />
+                        </button>
+                      </template>
+                    </div>
                   </div>
                 </div>
+
+                <!-- Main File Dropzone -->
+                <div class="zone-group">
+                  <h3 class="zone-title">Dataset Utama</h3>
+                  <div 
+                    class="drop-box" 
+                    :class="{ 'is-dragging': isDraggingMain, 'has-file': mainFile }"
+                    @dragover.prevent="isDraggingMain = true"
+                    @dragleave.prevent="isDraggingMain = false"
+                    @drop.prevent="handleDrop($event, 'main')"
+                    @click="$refs.mainInput.click()"
+                  >
+                    <input 
+                      ref="mainInput" 
+                      type="file" 
+                      accept=".xlsx, .xls, .csv" 
+                      class="hidden-input" 
+                      @change="handleFileSelect($event, 'main')" 
+                    />
+                    <div class="box-content">
+                      <template v-if="!mainFile">
+                        <UploadCloudIcon class="box-icon" />
+                        <div class="label-group">
+                          <span class="box-label">Upload berkas utama disini</span>
+                          <span class="box-sublabel">Format data primer sistem</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <FileSpreadsheetIcon class="box-icon file-active" />
+                        <div class="file-info">
+                          <span class="file-name">{{ mainFile.name }}</span>
+                          <span class="file-meta">{{ formatFileSize(mainFile.size) }}</span>
+                        </div>
+                        <button type="button" class="remove-btn" @click.stop="mainFile = null; resetPreview()">
+                          <XIcon class="btn-icon" />
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="file-hint">Format berkas yang didukung: .xlsx, .xls, .csv</p>
               </div>
 
-              <!-- Main File Dropzone -->
-              <div class="zone-group">
-                <h3 class="zone-title">Dataset Utama</h3>
-                <div 
-                  class="drop-box" 
-                  :class="{ 'is-dragging': isDraggingMain, 'has-file': mainFile }"
-                  @dragover.prevent="isDraggingMain = true"
-                  @dragleave.prevent="isDraggingMain = false"
-                  @drop.prevent="handleDrop($event, 'main')"
-                  @click="$refs.mainInput.click()"
+              <!-- Action Trigger Button -->
+              <div class="action-bar">
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  :disabled="!canProcess || isProcessing" 
+                  @click="processFiles"
                 >
-                  <input 
-                    ref="mainInput" 
-                    type="file" 
-                    accept=".xlsx, .xls, .csv" 
-                    class="hidden-input" 
-                    @change="handleFileSelect($event, 'main')" 
-                  />
-                  <div class="box-content">
-                    <template v-if="!mainFile">
-                      <UploadCloudIcon class="box-icon" />
-                      <div class="label-group">
-                        <span class="box-label">Upload berkas utama disini</span>
-                        <span class="box-sublabel">Format data primer sistem</span>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <FileSpreadsheetIcon class="box-icon file-active" />
-                      <div class="file-info">
-                        <span class="file-name">{{ mainFile.name }}</span>
-                        <span class="file-meta">{{ formatFileSize(mainFile.size) }}</span>
-                      </div>
-                      <button type="button" class="remove-btn" @click.stop="mainFile = null; resetPreview()">
-                        <XIcon class="btn-icon" />
-                      </button>
-                    </template>
-                  </div>
-                </div>
+                  <Loader2Icon v-if="isProcessing" class="btn-icon spin" />
+                  <PlayIcon v-else class="btn-icon" />
+                  <span>{{ isProcessing ? 'Memproses Data...' : 'Proses Data Spreading' }}</span>
+                </button>
               </div>
-
-              <p class="file-hint">Format berkas yang didukung: .xlsx, .xls, .csv</p>
             </div>
-
-            <!-- Action Trigger Button -->
-            <div class="action-bar">
-              <button 
-                type="button" 
-                class="btn btn-primary" 
-                :disabled="!canProcess || isProcessing" 
-                @click="processFiles"
-              >
-                <Loader2Icon v-if="isProcessing" class="btn-icon spin" />
-                <PlayIcon v-else class="btn-icon" />
-                <span>{{ isProcessing ? 'Memproses Data...' : 'Proses Data Spreading' }}</span>
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         <!-- Right Column: SOA Live Data Preview Box -->
         <section class="card preview-card">
@@ -275,7 +291,8 @@ import {
   Loader2Icon, 
   FileTextIcon, 
   AlertCircleIcon, 
-  DownloadIcon 
+  DownloadIcon,
+  LightbulbIcon
 } from 'lucide-vue-next'
 
 // --- State ---
@@ -323,7 +340,6 @@ watch(
     resetPreview();
   }
 );
-
 
 const premiColumns = [
   { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
@@ -707,6 +723,60 @@ const downloadFile = async (format) => {
   }
 }
 
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Note Card Styling */
+.note-card {
+  background-color: #fefce8;
+  border: 1px solid #fef08a;
+}
+
+.note-body {
+  padding: 16px 20px;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.note-icon {
+  width: 20px;
+  height: 20px;
+  color: #ca8a04;
+}
+
+.note-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #854d0e;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.note-text {
+  font-size: 0.825rem;
+  color: #713f12;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.note-text code {
+  background-color: #fef9c3;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
 /* Unified Card Shell Elements */
 .card {
   background: #ffffff;
@@ -715,7 +785,7 @@ const downloadFile = async (format) => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Prevents flex children from bursting out of boundaries */
+  min-width: 0;
 }
 
 .card-header {
@@ -1064,7 +1134,6 @@ const downloadFile = async (format) => {
   border-radius: 8px;
   max-height: 320px;
   background: #ffffff;
-  /* Smooth internal scrolling for desktop layouts */
   -webkit-overflow-scrolling: touch; 
 }
 
@@ -1095,10 +1164,10 @@ const downloadFile = async (format) => {
 .text-right { text-align: right; }
 .font-semibold { font-weight: 600; }
 
-/* Dynamic Mobile Transformation CSS (Busts Table down to Cards on Mobile Screens) */
+/* Dynamic Mobile Transformation CSS */
 @media (max-width: 640px) {
   .table-container {
-    max-height: none; /* Let column stacks expand naturally */
+    max-height: none;
     border: none;
   }
 
@@ -1107,7 +1176,7 @@ const downloadFile = async (format) => {
   }
 
   .data-table thead {
-    display: none; /* Hide traditional headers */
+    display: none;
   }
 
   .data-table tr {
@@ -1125,15 +1194,14 @@ const downloadFile = async (format) => {
     align-items: center;
     padding: 6px 0;
     border-bottom: 1px dashed #f1f5f9;
-    white-space: normal; /* Wraps long text inside rows */
-    text-align: right !important; /* Force data right */
+    white-space: normal;
+    text-align: right !important;
   }
 
   .data-table td:last-child {
     border-bottom: none;
   }
 
-  /* Insert Dynamic Labels using attribute reflection mapping */
   .data-table td::before {
     content: attr(data-label);
     font-weight: 600;
@@ -1192,44 +1260,51 @@ const downloadFile = async (format) => {
   border-top: 1px solid #f1f5f9;
   display: flex;
   gap: 12px;
-  background-color: #f8fafc;
-  flex-wrap: wrap;
+  background-color: #ffffff;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .btn-download {
   flex: 1;
-  min-width: 130px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 14px;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  border-radius: 8px;
+  font-size: 0.815rem;
   font-weight: 600;
+  border: 1px solid #16a34a;
   background-color: #16a34a;
   color: #ffffff;
-  border: none;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: all 0.15s ease;
 }
 
 .btn-download:hover:not(:disabled) {
   background-color: #15803d;
+  border-color: #15803d;
 }
 
 .btn-secondary-download {
-  background-color: #0284c7;
+  background-color: #ffffff;
+  color: #0284c7;
+  border-color: #0284c7;
 }
 
 .btn-secondary-download:hover:not(:disabled) {
-  background-color: #0369a1;
+  background-color: #f0f9ff;
+  border-color: #0369a1;
+  color: #0369a1;
 }
 
 .btn-download:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
+  opacity: 0.5;
   cursor: not-allowed;
+  border-color: #cbd5e1;
+  background-color: #f1f5f9;
+  color: #94a3b8;
 }
 
 .download-icon {
@@ -1237,7 +1312,6 @@ const downloadFile = async (format) => {
   height: 16px;
 }
 
-/* Utility Animations */
 .spin {
   animation: spin 1s linear infinite;
 }
