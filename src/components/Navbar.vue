@@ -49,22 +49,6 @@
           </div>
         </div>
 
-        <!-- KP Dropdown -->
-        <div class="header-actions" ref="kpDropdownRef">
-          <button 
-            @click.stop="toggleDropdown('kp')" 
-            class="nav-dropdown-btn" 
-            :class="{ 'active': activeDropdown === 'kp' || startsWith('/spread-kp') }"
-          >
-            <span>Kredit Program</span>
-            <ChevronDownIcon class="chevron-icon" :class="{ 'rotated': activeDropdown === 'kp' }" />
-          </button>
-          
-          <div v-if="activeDropdown === 'kp'" class="dropdown-menu">
-            <router-link to="/spread-kp/premi" class="dropdown-item" @click="closeDropdowns">Premi</router-link>
-            <router-link to="/spread-kp/klaim" class="dropdown-item" @click="closeDropdowns">Klaim</router-link>
-          </div>
-        </div>
       </nav>
     </div>
   </header>
@@ -80,7 +64,6 @@ const activeDropdown = ref(null);
 
 const asumDropdownRef = ref(null);
 const financeDropdownRef = ref(null);
-const kpDropdownRef = ref(null);
 
 const startsWith = (prefix) => route.path.startsWith(prefix);
 
@@ -95,9 +78,8 @@ const closeDropdowns = () => {
 const handleClickOutside = (event) => {
   const isInsideAsum = asumDropdownRef.value?.contains(event.target);
   const isInsideFinance = financeDropdownRef.value?.contains(event.target);
-  const isInsideKp = kpDropdownRef.value?.contains(event.target);
 
-  if (!isInsideAsum && !isInsideFinance && !isInsideKp) {
+  if (!isInsideAsum && !isInsideFinance) {
     closeDropdowns();
   }
 };

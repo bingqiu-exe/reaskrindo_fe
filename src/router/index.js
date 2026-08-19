@@ -3,7 +3,6 @@ import HomeView from "../views/HomeView.vue";
 import ImportAutoMapping from "../views/auto_mapping/ImportAutoMapping.vue";
 import ImportSpreadingAsum from "../views/asum/ImportSpreadingAsum.vue";
 import ImportSpreadingFinance from "../views/finansial/ImportSpreadingFinance.vue";
-import ImportSpreadingKP from "../views/kp/ImportSpreadingKP.vue";
 
 const routes = [
   {
@@ -28,12 +27,6 @@ const routes = [
     path: "/spread-finance/:mode",
     name: "spread-finance",
     component: ImportSpreadingFinance,
-    meta: { isPublic: true },
-  },
-  {
-    path: "/spread-kp/:mode",
-    name: "spread-kp",
-    component: ImportSpreadingKP,
     meta: { isPublic: true },
   },
 ];

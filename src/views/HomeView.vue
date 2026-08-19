@@ -120,8 +120,8 @@ const activeTabLabel = computed(() => {
 
 const guideSteps = [
   'Klik dropdown opsi asum atau finance, pilih antara klaim atau premi.',
-  'Masukan dataset referensi (Bisa didownload langsung atau dari lokal jika sudah ada). Catatan: File referensi mungkin outdated.',
-  'Masukan dataset utama. Perhatikan tipe file yang dikonversi agar sesuai dengan target SOA.',
+  'Masukan dataset referensi, data referensi bisa didownload langsung atau dari lokal jika sudah ada. (Jika data berupa format excel, pastikan juga kalau data yang ingin dikonversi ada di sheet pertama) Catatan: File referensi kemungkinan outdated.',
+  'Masukan dataset utama. Perhatikan tipe file yang dikonversi agar sesuai dengan target SOA. (Jika data berupa format excel, pastikan juga kalau data yang ingin dikonversi ada di sheet pertama)',
   'Klik start data processing. Konversi membutuhkan waktu beberapa menit.',
   'Klik download hasil (.xlsx atau .csv). Proses unduh dapat memakan waktu beberapa menit.',
   'SOA siap digunakan. Periksa kelengkapan data sebelum diproses lebih lanjut.'

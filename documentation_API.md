@@ -13,9 +13,4 @@ http://localhost:8000/finance/api/premi
 ### KLAIM
 http://localhost:8000/finance/api/klaim (default)
 
-# KREDIT PROGRAM
-### PREMI
-http://localhost:8000/kp/api/premi
-### KLAIM
-http://localhost:8000/kp/api/klaim (default)
 
