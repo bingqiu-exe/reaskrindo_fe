@@ -1,26 +1,16 @@
 <template>
   <div class="page-wrapper">
     <div class="auto-mapping-container">
-      <!-- Header Section -->
       <header class="page-header">
         <div class="header-content">
           <div class="title-group">
-            <h1 class="page-title">Import Data {{ formattedMode }} Asum</h1>
-            <p class="page-subtitle">Unggah berkas referensi dan dataset utama untuk memproses data spreading.</p>
-          </div>
-          <div class="mode-selector">
-            <label for="mode-select" class="mode-label">Tipe Data:</label>
-            <div class="select-wrapper">
-              <select id="mode-select" v-model="selectedMode" @change="handleModeChange" class="custom-select">
-                <option value="premi">Premi</option>
-                <option value="klaim">Klaim</option>
-              </select>
-            </div>
+            <h1 class="page-title">Import Data Asum (Premi / Klaim)</h1>
+            <p class="page-subtitle">Unggah berkas referensi dan dataset utama untuk memproses data spreading gabungan.</p>
+            <p class="page-subtitle"><strong>Jika data berupa format excel, pastikan data yang ingin dikonversi ada di sheet paling pertama.</strong></p>
           </div>
         </div>
       </header>
 
-      <!-- Error Alert Stack -->
       <div v-if="errorMessage" class="alert alert-error">
         <AlertCircleIcon class="alert-icon" />
         <div class="alert-content">{{ errorMessage }}</div>
@@ -29,11 +19,16 @@
         </button>
       </div>
 
-      <!-- Main Workspace (Two-Column Grid) -->
+      <div v-if="successMessage" class="alert alert-success">
+        <CheckCircleIcon class="alert-icon" />
+        <div class="alert-content">{{ successMessage }}</div>
+        <button type="button" class="alert-close" @click="successMessage = ''">
+          <XIcon class="close-icon" />
+        </button>
+      </div>
+
       <main class="workspace-grid">
-        <!-- Left Column: File Upload Area & Important Note Card -->
         <div class="left-column">
-          <!-- Card Catatan / Instruksi PENTING -->
           <section class="card note-card">
             <div class="card-body note-body">
               <div class="note-header">
@@ -41,19 +36,18 @@
                 <h3 class="note-title">PENTING</h3>
               </div>
               <p class="note-text">
-                Pastikan dataset utama memiliki <strong>primary key</strong> kombinasi dari <strong>UY</strong> dan <strong>COB</strong> atau <strong>product_id</strong> (contoh: <code>2023KUS</code>, <code>KUS-2023</code>, atau <code>2023CONSUMPTIVE CREDIT</code>) sesuai dengan yang ada di data referensi.
+                Berbeda dengan finance, asum tidak perlu memiliki primary key sebab dibuat secara langsung dalam proses dengan kombinasi 
+                <strong>UY</strong> dan <strong>COB</strong>
               </p>
             </div>
           </section>
 
-          <!-- Upload Card -->
           <section class="card upload-card">
             <div class="card-header">
-              <h2 class="card-title">Unggah Dataset ({{ selectedMode }})</h2>
+              <h2 class="card-title">Unggah Dataset</h2>
             </div>
             <div class="card-body">
               <div class="dropzone-wrapper">
-                <!-- Reference File Dropzone -->
                 <div class="zone-group">
                   <h3 class="zone-title">Dataset Referensi</h3>
                   <div 
@@ -98,7 +92,6 @@
                   </div>
                 </div>
 
-                <!-- Main File Dropzone -->
                 <div class="zone-group">
                   <h3 class="zone-title">Dataset Utama</h3>
                   <div 
@@ -141,7 +134,6 @@
                 <p class="file-hint">Format berkas yang didukung: .xlsx, .xls, .csv</p>
               </div>
 
-              <!-- Action Trigger Button -->
               <div class="action-bar">
                 <button 
                   type="button" 
@@ -158,14 +150,12 @@
           </section>
         </div>
 
-        <!-- Right Column: SOA Live Data Preview Box -->
         <section class="card preview-card">
           <div class="card-header">
             <h2 class="card-title">SOA Preview Data</h2>
           </div>
           
           <div class="card-body preview-body" :class="{ 'has-data': hasPreviewData && !isProcessing }">
-            <!-- Empty State Layout -->
             <div v-if="!hasPreviewData && !isProcessing" class="state-container">
               <div class="empty-icon-wrapper">
                 <InfoIcon class="empty-icon" />
@@ -174,38 +164,35 @@
               <p class="state-sub">Silakan unggah dan selesaikan pengisian berkas di sebelah kiri terlebih dahulu.</p>
             </div>
 
-            <!-- Pending Loading State -->
             <div v-else-if="isProcessing" class="state-container">
               <Loader2Icon class="spinner-icon spin" />
               <h3 class="state-title">Sedang Memproses</h3>
               <p class="state-sub">Harap tunggu sebentar, sistem sedang mengolah data spreading...</p>
             </div>
 
-            <!-- Success Content View -->
             <div v-else class="preview-results">
               <div class="file-summary-cards">
                 <div class="summary-chip">
                   <FileSpreadsheetIcon class="chip-icon excel" />
                   <div class="chip-text">
-                    <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.xlsx</span>
+                    <span class="chip-title">reaskrindo_soa_combined_result.xlsx</span>
                     <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
                 <div class="summary-chip">
                   <FileTextIcon class="chip-icon csv" />
                   <div class="chip-text">
-                    <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.csv</span>
+                    <span class="chip-title">reaskrindo_soa_combined_result.csv</span>
                     <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Data Stream Table Sheet Container -->
               <div class="table-container">
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th v-for="col in tableColumns" :key="col.key" :class="[col.align === 'right' ? 'text-right' : 'text-left']">
+                      <th v-for="col in combinedColumns" :key="col.key" :class="[col.align === 'right' ? 'text-right' : 'text-left']">
                         {{ col.label }}
                       </th>
                     </tr>
@@ -213,7 +200,7 @@
                   <tbody>
                     <tr v-for="(row, idx) in paginatedData" :key="idx">
                       <td 
-                        v-for="col in tableColumns" 
+                        v-for="col in combinedColumns" 
                         :key="col.key"
                         :data-label="col.label"
                         :class="[
@@ -228,7 +215,6 @@
                 </table>
               </div>
 
-              <!-- Embedded Small Pagination Wrapper -->
               <div class="pagination-footer" v-if="totalPages > 1">
                 <button 
                   class="btn-page" 
@@ -249,7 +235,6 @@
             </div>
           </div>
 
-          <!-- Component Interactive Action Footer Export -->
           <div class="card-footer download-footer">
             <button 
               type="button" 
@@ -277,13 +262,11 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router';
+import { ref, computed } from 'vue'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
 import { 
   UploadCloudIcon, 
-  FileUpIcon, 
   FileSpreadsheetIcon, 
   XIcon, 
   InfoIcon, 
@@ -291,13 +274,12 @@ import {
   Loader2Icon, 
   FileTextIcon, 
   AlertCircleIcon, 
+  CheckCircleIcon,
   DownloadIcon,
   LightbulbIcon
 } from 'lucide-vue-next'
 
 // --- State ---
-const selectedMode = ref('premi')
-
 const refFile = ref(null)
 const mainFile = ref(null)
 const refInput = ref(null)
@@ -309,69 +291,24 @@ const isDraggingMain = ref(false)
 const isProcessing = ref(false)
 const hasPreviewData = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const parsedData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-const route = useRoute();
-
 const API_BASE_URL = 'http://127.0.0.1:8000'
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/asum/api/import-soa-asum/`
 const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
-const syncModeWithRoute = () => {
-  const mode = route.params.mode?.toLowerCase();
-  if (mode && ['premi', 'klaim', 'subrograsi'].includes(mode)) {
-    selectedMode.value = mode;
-  } else {
-    selectedMode.value = 'premi';
-  }
-};
-
-onMounted(() => {
-  syncModeWithRoute();
-});
-
-watch(
-  () => route.params.mode,
-  () => {
-    syncModeWithRoute();
-    resetPreview();
-  }
-);
-
-const premiColumns = [
+const combinedColumns = [
   { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
-  { key: 'CERTIFICATE NO', label: 'No. Sertifikat', bold: true },
-  { key: 'INSURED NAME', label: 'Insured Name' },
-  { key: 'COB', label: 'COB' },
-  { key: 'INCEPTION', label: 'Period of Ins. AWAL' },
-  { key: 'EXPIRY', label: 'Period of Ins. AKHIR' },
-  { key: 'CURRENCY', label: 'Curr' },
-  { key: 'UW YEAR', label: 'UY' },
-  { key: 'QS', label: 'Quota Share', align: 'right', type: 'currency' },
-  { key: 'SPL', label: 'Surplus', align: 'right', type: 'currency' },
-  { key: 'broker_used', label: 'Broker' },
-  { key: 'security_used', label: 'Security' },
-  { key: 'share_qs_panel_of_share_reas', label: 'QS Share', align: 'right', type: 'percent' },
-  { key: 'share_sp_panel_of_share_reas', label: 'SP Share', align: 'right', type: 'percent' },
-  { key: 'komisi_qs_per_panel', label: 'Komisi QS', align: 'right', type: 'percent' },
-  { key: 'komisi_sp_per_panel', label: 'Komisi SP', align: 'right', type: 'percent' },
-  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_komisi_qs', label: 'Komisi QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_komisi_sp', label: 'Komisi SP Share Amt', align: 'right', type: 'currency' },
-]
-
-const klaimColumns = [
-  { key: 'POLICY NUMBER', label: 'Policy No.', bold: true },
-  { key: 'NOMOR REGISTRASI', label: 'No. Registrasi', bold: true },
+  { key: 'NOMOR REGISTRASI', label: 'No. Sertifikat / Registrasi', bold: true },
   { key: 'THE INSURED', label: 'Insured Name' },
   { key: 'COB', label: 'COB' },
   { key: 'INCEPTION', label: 'Inception' },
   { key: 'EXPIRY', label: 'Expiry' },
-  { key: 'DOL', label: 'DOL_DATE' },
+  { key: 'DOL', label: 'DOL Date' },
   { key: 'CURRENCY', label: 'Curr' },
   { key: 'UW YEAR', label: 'UY' },
   { key: 'CLAIM AMOUNT', label: 'Claim Amount', align: 'right', type: 'currency' },
@@ -381,26 +318,12 @@ const klaimColumns = [
   { key: 'security_used', label: 'Security' },
   { key: 'share_qs_panel_of_share_reas', label: 'QS Share', align: 'right', type: 'percent' },
   { key: 'share_sp_panel_of_share_reas', label: 'SP Share', align: 'right', type: 'percent' },
-  { key: 'multiplied_quota_share', label: 'QS Share Amt', align: 'right', type: 'currency' },
-  { key: 'multiplied_surplus', label: 'SP Share Amt', align: 'right', type: 'currency' }
+  { key: 'multiplied_quota_share', label: 'QS Share Per Panel', align: 'right', type: 'currency' },
+  { key: 'multiplied_surplus', label: 'SP Share Per Panel', align: 'right', type: 'currency' },
 ]
 
-const subrograsiColumns = [...klaimColumns]
-
 // --- Computeds ---
-const formattedMode = computed(() => {
-  if (!selectedMode.value) return ''
-  return selectedMode.value.toUpperCase()
-})
-
 const canProcess = computed(() => Boolean(refFile.value && mainFile.value))
-
-const tableColumns = computed(() => {
-  const mode = selectedMode.value.toLowerCase()
-  if (mode === 'klaim') return klaimColumns
-  if (mode === 'subrograsi') return subrograsiColumns
-  return premiColumns
-})
 
 const totalPages = computed(() => {
   return Math.ceil(parsedData.value.length / pageSize.value) || 1
@@ -416,11 +339,8 @@ const resetPreview = () => {
   hasPreviewData.value = false
   parsedData.value = []
   errorMessage.value = ''
+  successMessage.value = ''
   currentPage.value = 1
-}
-
-const handleModeChange = () => {
-  resetPreview()
 }
 
 const formatFileSize = (bytes) => {
@@ -470,13 +390,12 @@ const processFiles = async () => {
 
   isProcessing.value = true
   errorMessage.value = ''
+  successMessage.value = ''
 
   const formData = new FormData()
   formData.append('main_file', mainFile.value)
   formData.append('reference_file', refFile.value)
-  
-  // Backend expects 'jenis_soa' ('PREMI' or 'KLAIM')
-  formData.append('jenis_soa', selectedMode.value.toUpperCase())
+  formData.append('jenis_soa', 'COMBINED')
   formData.append('export_format', 'json')
 
   try {
@@ -498,6 +417,7 @@ const processFiles = async () => {
 
     hasPreviewData.value = true
     currentPage.value = 1
+    successMessage.value = response.data?.message || 'Data ASUM spreading berhasil diproses!'
   } catch (err) {
     console.error('Error importing ASUM data:', err)
     errorMessage.value = err.response?.data?.error || err.response?.data?.message || 'Gagal memproses file. Pastikan format file sesuai.'
@@ -515,7 +435,9 @@ const downloadRefTemplate = async (format) => {
       responseType: 'blob'
     })
     
-    const targetFilename = format === 'csv' ? 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.csv' : 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.xlsx'
+    const targetFilename = format === 'csv' 
+      ? 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.csv' 
+      : 'QRY TRATY DAN MAIN CONTRACT TREATY - used database final 20052026 - SQL.xlsx'
 
     const downloadBlob = new Blob([response.data])
     const url = window.URL.createObjectURL(downloadBlob)
@@ -548,7 +470,7 @@ const downloadFile = async (format) => {
     const formData = new FormData()
     formData.append('main_file', mainFile.value)
     formData.append('reference_file', refFile.value)
-    formData.append('jenis_soa', selectedMode.value.toUpperCase())
+    formData.append('jenis_soa', 'COMBINED')
     
     const response = await axios.post(
       `${IMPORT_PLACEMENT_API}?export_format=${format}`, 
@@ -568,7 +490,7 @@ const downloadFile = async (format) => {
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     const dateStr = new Date().toISOString().slice(0, 10)
-    link.download = `ASUM_Spreading_${formattedMode.value}_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
+    link.download = `ASUM_Spreading_COMBINED_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
     link.click()
     window.URL.revokeObjectURL(link.href)
 
@@ -578,11 +500,11 @@ const downloadFile = async (format) => {
     if (!parsedData.value.length) return
     const worksheet = XLSX.utils.json_to_sheet(parsedData.value)
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, `SOA_${formattedMode.value}`)
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'SOA_COMBINED')
 
     const fileExt = format === 'excel' ? 'xlsx' : 'csv'
     const dateStr = new Date().toISOString().slice(0, 10)
-    const filename = `SOA_Spreading_${formattedMode.value}_${dateStr}.${fileExt}`
+    const filename = `SOA_Spreading_COMBINED_${dateStr}.${fileExt}`
 
     if (format === 'excel') {
       XLSX.writeFile(workbook, filename)
@@ -684,6 +606,12 @@ const downloadFile = async (format) => {
   color: #991b1b;
 }
 
+.alert-success {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
 .alert-icon {
   width: 20px;
   height: 20px;
@@ -700,9 +628,16 @@ const downloadFile = async (format) => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #991b1b;
   display: flex;
   padding: 2px;
+}
+
+.alert-error .alert-close {
+  color: #991b1b;
+}
+
+.alert-success .alert-close {
+  color: #166534;
 }
 
 .close-icon {

@@ -17,80 +17,29 @@
           </router-link>
         </div>
 
-        <!-- ASUM Dropdown -->
-        <div class="header-actions" ref="asumDropdownRef">
-          <button 
-            @click.stop="toggleDropdown('asum')" 
-            class="nav-dropdown-btn" 
-            :class="{ 'active': activeDropdown === 'asum' || startsWith('/spread-asum') }"
-          >
+        <!-- ASUM (Combined) -->
+        <div class="header-actions">
+          <router-link to="/spread-asum/" class="nav-btn" :class="{ 'active': startsWith('/spread-asum') }">
             <span>Asum</span>
-            <ChevronDownIcon class="chevron-icon" :class="{ 'rotated': activeDropdown === 'asum' }" />
-          </button>
-          <div v-if="activeDropdown === 'asum'" class="dropdown-menu">
-            <router-link to="/spread-asum/premi" class="dropdown-item" @click="closeDropdowns">Premi</router-link>
-            <router-link to="/spread-asum/klaim" class="dropdown-item" @click="closeDropdowns">Klaim</router-link>
-          </div>
+          </router-link>
         </div>
 
-        <!-- Finance Dropdown -->
-        <div class="header-actions" ref="financeDropdownRef">
-          <button 
-            @click.stop="toggleDropdown('finance')" 
-            class="nav-dropdown-btn" 
-            :class="{ 'active': activeDropdown === 'finance' || startsWith('/spread-finance') }"
-          >
+        <!-- Finance (Combined) -->
+        <div class="header-actions">
+          <router-link to="/spread-finance/" class="nav-btn" :class="{ 'active': startsWith('/spread-finance') }">
             <span>Finance</span>
-            <ChevronDownIcon class="chevron-icon" :class="{ 'rotated': activeDropdown === 'finance' }" />
-          </button>
-          <div v-if="activeDropdown === 'finance'" class="dropdown-menu">
-            <router-link to="/spread-finance/premi" class="dropdown-item" @click="closeDropdowns">Premi</router-link>
-            <router-link to="/spread-finance/klaim" class="dropdown-item" @click="closeDropdowns">Klaim</router-link>
-          </div>
+          </router-link>
         </div>
-
       </nav>
     </div>
   </header>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { ChevronDownIcon } from 'lucide-vue-next';
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
-const activeDropdown = ref(null);
-
-const asumDropdownRef = ref(null);
-const financeDropdownRef = ref(null);
-
-const startsWith = (prefix) => route.path.startsWith(prefix);
-
-const toggleDropdown = (menu) => {
-  activeDropdown.value = activeDropdown.value === menu ? null : menu;
-};
-
-const closeDropdowns = () => {
-  activeDropdown.value = null;
-};
-
-const handleClickOutside = (event) => {
-  const isInsideAsum = asumDropdownRef.value?.contains(event.target);
-  const isInsideFinance = financeDropdownRef.value?.contains(event.target);
-
-  if (!isInsideAsum && !isInsideFinance) {
-    closeDropdowns();
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
+const route = useRoute()
+const startsWith = (prefix) => route.path.startsWith(prefix)
 </script>
 
 <style scoped>

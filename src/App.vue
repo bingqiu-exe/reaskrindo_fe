@@ -11,10 +11,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-import Navbar from './components/Navbar.vue';
-import Footer from './components/Footer.vue';
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import Navbar from './components/Navbar.vue'
+import Footer from './components/Footer.vue'
 
 const route = useRoute();
 
@@ -28,6 +28,9 @@ const showFooter = computed(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .main-content {

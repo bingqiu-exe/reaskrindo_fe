@@ -18,13 +18,13 @@ const routes = [
     meta: { isPublic: true },
   },
   {
-    path: "/spread-asum/:mode",
+    path: "/spread-asum/",
     name: "spread-asum",
     component: ImportSpreadingAsum,
     meta: { isPublic: true },
   },
   {
-    path: "/spread-finance/:mode",
+    path: "/spread-finance/",
     name: "spread-finance",
     component: ImportSpreadingFinance,
     meta: { isPublic: true },

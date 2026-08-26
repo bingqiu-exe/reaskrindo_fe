@@ -119,9 +119,10 @@ const activeTabLabel = computed(() => {
 })
 
 const guideSteps = [
+  'Jika data belum memiliki primary key, klik Auto Mapping lalu enable opsi primary key untuk pembuatannya.',
   'Klik dropdown opsi asum atau finance, pilih antara klaim atau premi.',
-  'Masukan dataset referensi, data referensi bisa didownload langsung atau dari lokal jika sudah ada. (Jika data berupa format excel, pastikan juga kalau data yang ingin dikonversi ada di sheet pertama) Catatan: File referensi kemungkinan outdated.',
-  'Masukan dataset utama. Perhatikan tipe file yang dikonversi agar sesuai dengan target SOA. (Jika data berupa format excel, pastikan juga kalau data yang ingin dikonversi ada di sheet pertama)',
+  'Masukan dataset referensi, data referensi bisa didownload langsung atau dari lokal jika sudah ada. Catatan: File referensi kemungkinan outdated.',
+  'Masukan dataset utama. (Jika data berupa format excel, pastikan juga kalau data yang ingin dikonversi ada di sheet pertama)',
   'Klik start data processing. Konversi membutuhkan waktu beberapa menit.',
   'Klik download hasil (.xlsx atau .csv). Proses unduh dapat memakan waktu beberapa menit.',
   'SOA siap digunakan. Periksa kelengkapan data sebelum diproses lebih lanjut.'

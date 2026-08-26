@@ -1,28 +1,24 @@
 <template>
   <div class="page-wrapper">
-    <!-- Main Content Body -->
     <div class="finance-container">
-      <!-- Header Section -->
       <header class="page-header">
         <div class="header-content">
           <div class="title-group">
-            <h1 class="page-title">Import Data {{ formattedMode }} Finance</h1>
-            <p class="page-subtitle">Unggah berkas referensi dan dataset utama untuk memproses data spreading.</p>
-          </div>
-          <div class="mode-selector">
-            <label for="mode-select" class="mode-label">Tipe Data:</label>
-            <div class="select-wrapper">
-              <select id="mode-select" v-model="selectedMode" @change="handleModeChange" class="custom-select">
-                <option value="premi">Premi</option>
-                <option value="klaim">Klaim</option>
-                <option value="subrograsi">Subrograsi</option>
-              </select>
-            </div>
+            <h1 class="page-title">Import Data Finance (Premi / Klaim)</h1>
+            <p class="page-subtitle">Unggah berkas referensi dan dataset utama untuk memproses data spreading Finance.</p>
+            <p class="page-subtitle"><strong>Jika data berupa format excel, pastikan data yang ingin dikonversi ada di sheet paling pertama.</strong></p>
           </div>
         </div>
       </header>
 
-      <!-- Error Alert Stack -->
+      <div v-if="successMessage" class="alert alert-success">
+        <CheckCircle2Icon class="alert-icon" />
+        <div class="alert-content">{{ successMessage }}</div>
+        <button type="button" class="alert-close" @click="successMessage = ''">
+          <XIcon class="close-icon" />
+        </button>
+      </div>
+
       <div v-if="errorMessage" class="alert alert-error">
         <AlertCircleIcon class="alert-icon" />
         <div class="alert-content">{{ errorMessage }}</div>
@@ -31,7 +27,6 @@
         </button>
       </div>
 
-      <!-- Main Workspace (Two-Column Layout) -->
       <main class="workspace-grid">
         <div class="left-column">
           <section class="card note-card">
@@ -41,10 +36,11 @@
                 <h3 class="note-title">PENTING</h3>
               </div>
               <p class="note-text">
-                Pastikan dataset utama memiliki <strong>primary key</strong> kombinasi dari <strong>UY</strong> dan <strong>COB</strong> atau <strong>product_id</strong> (contoh: <code>2023KUS</code>, <code>KUS-2023</code>, atau <code>2023CONSUMPTIVE CREDIT</code>) sesuai dengan yang ada di data referensi.
+                Pastikan dataset utama memiliki primary key. (contoh: <code>KUS-2023</code>) <strong>Primary key dapat dibuat dengan memanfaatkan fitur 'Auto Mapping'</strong> 
               </p>
             </div>
           </section>
+
           <section class="card note-card">
             <div class="card-body note-body">
               <div class="note-header">
@@ -56,15 +52,14 @@
               </p>
             </div>
           </section>
-          <!-- Left Column: File Upload Box -->
+
           <section class="card upload-card">
             <div class="card-header">
-              <h2 class="card-title">Silakan import data {{ selectedMode }} disini</h2>
+              <h2 class="card-title">Silakan import data Finance disini</h2>
             </div>
             <div class="card-body">
               <div class="dropzone-wrapper">
                 
-                <!-- Dataset Referensi -->
                 <div class="zone-group">
                   <h3 class="zone-title">Dataset Referensi</h3>
                   <div 
@@ -109,7 +104,6 @@
                   </div>
                 </div>
 
-                <!-- Main File Dropzone -->
                 <div class="zone-group">
                   <h3 class="zone-title">Dataset Utama</h3>
                   <div 
@@ -152,7 +146,6 @@
                 <p class="file-hint">File yang diperbolehkan .xlsx dan .csv</p>
               </div>
 
-              <!-- Action Button -->
               <div class="action-bar">
                 <button 
                   type="button" 
@@ -169,14 +162,12 @@
           </section>
         </div>
 
-        <!-- Right Column: SOA Preview Box -->
         <section class="card preview-card">
           <div class="card-header">
             <h2 class="card-title">SOA Preview Data</h2>
           </div>
           
           <div class="card-body preview-body" :class="{ 'has-data': hasPreviewData && !isProcessing }">
-            <!-- Empty State Layout -->
             <div v-if="!hasPreviewData && !isProcessing" class="state-container">
               <div class="empty-icon-wrapper">
                 <InfoIcon class="empty-icon" />
@@ -185,33 +176,30 @@
               <p class="state-sub">Silakan unggah dan selesaikan pengisian berkas di sebelah kiri terlebih dahulu.</p>
             </div>
 
-            <!-- Pending Loading State -->
             <div v-else-if="isProcessing" class="state-container">
               <Loader2Icon class="spinner-icon spin" />
               <h3 class="state-title">Sedang Memproses</h3>
               <p class="state-sub">Harap tunggu sebentar, sistem sedang mengolah data spreading...</p>
             </div>
 
-            <!-- Success Content View -->
             <div v-else class="preview-results">
               <div class="file-summary-cards">
                 <div class="summary-chip">
                   <FileSpreadsheetIcon class="chip-icon excel" />
                   <div class="chip-text">
-                    <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.xlsx</span>
+                    <span class="chip-title">reaskrindo_soa_finance_result.xlsx</span>
                     <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
                 <div class="summary-chip">
                   <FileTextIcon class="chip-icon csv" />
                   <div class="chip-text">
-                    <span class="chip-title">reaskrindo_soa_{{ selectedMode }}_result.csv</span>
+                    <span class="chip-title">reaskrindo_soa_finance_result.csv</span>
                     <span class="chip-sub">{{ parsedData.length }} Records Siap</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Data Stream Table Sheet Container -->
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -239,7 +227,6 @@
                 </table>
               </div>
 
-              <!-- Embedded Small Pagination Wrapper -->
               <div class="pagination-footer" v-if="totalPages > 1">
                 <button 
                   class="btn-page" 
@@ -260,7 +247,6 @@
             </div>
           </div>
 
-          <!-- Component Interactive Action Footer Export -->
           <div class="card-footer download-footer">
             <button 
               type="button" 
@@ -301,12 +287,13 @@ import {
   Loader2Icon, 
   FileTextIcon, 
   AlertCircleIcon, 
+  CheckCircle2Icon,
   DownloadIcon,
   LightbulbIcon 
 } from 'lucide-vue-next'
 
 // --- State ---
-const selectedMode = ref('premi')
+const selectedMode = ref('finance')
 
 const refFile = ref(null)
 const mainFile = ref(null)
@@ -319,6 +306,7 @@ const isDraggingMain = ref(false)
 const isProcessing = ref(false)
 const hasPreviewData = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const parsedData = ref([])
 const currentPage = ref(1)
@@ -332,10 +320,10 @@ const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
 const syncModeWithRoute = () => {
   const mode = route.params.mode?.toLowerCase()
-  if (mode && ['premi', 'klaim', 'subrograsi'].includes(mode)) {
-    selectedMode.value = mode
+  if (mode && mode === 'finance') {
+    selectedMode.value = 'finance'
   } else {
-    selectedMode.value = 'premi'
+    selectedMode.value = 'finance'
   }
 }
 
@@ -385,24 +373,11 @@ const commonColumns = [
   { key: 'Recoveries SP Panel', label: 'Recoveries SP Panel', align: 'right', type: 'currency' }
 ]
 
-const premiColumns = [...commonColumns]
-const klaimColumns = [...commonColumns]
-const subrograsiColumns = [...commonColumns]
+const tableColumns = computed(() => commonColumns)
 
-// --- Computeds ---
-const formattedMode = computed(() => {
-  if (!selectedMode.value) return ''
-  return selectedMode.value.toUpperCase()
-})
+const formattedMode = computed(() => 'FINANCE')
 
 const canProcess = computed(() => Boolean(refFile.value && mainFile.value))
-
-const tableColumns = computed(() => {
-  const mode = selectedMode.value.toLowerCase()
-  if (mode === 'klaim') return klaimColumns
-  if (mode === 'subrograsi') return subrograsiColumns
-  return premiColumns
-})
 
 const totalPages = computed(() => {
   return Math.ceil(parsedData.value.length / pageSize.value) || 1
@@ -418,6 +393,7 @@ const resetPreview = () => {
   hasPreviewData.value = false
   parsedData.value = []
   errorMessage.value = ''
+  successMessage.value = ''
   currentPage.value = 1
 }
 
@@ -474,11 +450,12 @@ const processFiles = async () => {
 
   isProcessing.value = true
   errorMessage.value = ''
+  successMessage.value = ''
 
   const formData = new FormData()
   formData.append('main_file', mainFile.value)
   formData.append('reference_file', refFile.value)
-  formData.append('jenis_soa', selectedMode.value.toUpperCase())
+  formData.append('jenis_soa', 'FINANCE')
   formData.append('export_format', 'json')
 
   try {
@@ -498,6 +475,9 @@ const processFiles = async () => {
 
     hasPreviewData.value = true
     currentPage.value = 1
+    
+    // Set success notification message
+    successMessage.value = response.data?.message || `Data Finance berhasil diproses! Ditemukan ${parsedData.value.length} baris data.`
   } catch (err) {
     console.error('Error importing FINANCE data:', err)
     errorMessage.value = err.response?.data?.error || err.response?.data?.message || 'Gagal memproses file. Pastikan format file sesuai.'
@@ -548,7 +528,7 @@ const downloadFile = async (format) => {
     const formData = new FormData()
     formData.append('main_file', mainFile.value)
     formData.append('reference_file', refFile.value)
-    formData.append('jenis_soa', selectedMode.value.toUpperCase())
+    formData.append('jenis_soa', 'FINANCE')
     
     const response = await axios.post(
       `${IMPORT_PLACEMENT_API}?export_format=${format}`, 
@@ -568,7 +548,7 @@ const downloadFile = async (format) => {
     const link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     const dateStr = new Date().toISOString().slice(0, 10)
-    link.download = `FINANCE_Spreading_${formattedMode.value}_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
+    link.download = `FINANCE_Spreading_FINANCE_${dateStr}.${format === 'excel' ? 'xlsx' : 'csv'}`
     link.click()
     window.URL.revokeObjectURL(link.href)
 
@@ -578,11 +558,11 @@ const downloadFile = async (format) => {
     if (!parsedData.value.length) return
     const worksheet = XLSX.utils.json_to_sheet(parsedData.value)
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, `SOA_${formattedMode.value}`)
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'SOA_FINANCE')
 
     const fileExt = format === 'excel' ? 'xlsx' : 'csv'
     const dateStr = new Date().toISOString().slice(0, 10)
-    const filename = `SOA_Spreading_${formattedMode.value}_${dateStr}.${fileExt}`
+    const filename = `SOA_Spreading_FINANCE_${dateStr}.${fileExt}`
 
     if (format === 'excel') {
       XLSX.writeFile(workbook, filename)
@@ -606,6 +586,15 @@ const downloadFile = async (format) => {
 
 .hidden-input {
   display: none;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Header UI Layout */
@@ -636,38 +625,6 @@ const downloadFile = async (format) => {
   margin: 0;
 }
 
-.mode-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: #f8fafc;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.mode-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #475569;
-}
-
-.custom-select {
-  padding: 6px 24px 6px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  background-color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1e293b;
-  outline: none;
-  cursor: pointer;
-}
-
-.custom-select:focus {
-  border-color: #1e3a8a;
-}
-
 /* Alert Notification Banner styling */
 .alert {
   display: flex;
@@ -682,6 +639,12 @@ const downloadFile = async (format) => {
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
+}
+
+.alert-success {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
 }
 
 .alert-icon {
@@ -700,9 +663,15 @@ const downloadFile = async (format) => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #991b1b;
+  color: inherit;
   display: flex;
   padding: 2px;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.alert-close:hover {
+  opacity: 1;
 }
 
 .close-icon {
@@ -785,7 +754,7 @@ const downloadFile = async (format) => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Prevents flex children from bursting out of boundaries */
+  min-width: 0;
 }
 
 .card-header {
@@ -940,7 +909,6 @@ const downloadFile = async (format) => {
   text-align: center;
 }
 
-/* Template download link items inside boxes */
 .template-download-links {
   margin-top: 4px;
   font-size: 0.775rem;
@@ -966,7 +934,6 @@ const downloadFile = async (format) => {
   color: #64748b;
 }
 
-/* Lower Section Workspace Sub-Actions */
 .action-bar {
   margin-top: 20px;
 }
@@ -1000,7 +967,6 @@ const downloadFile = async (format) => {
   cursor: not-allowed;
 }
 
-/* Preview Sheet Control Blocks */
 .preview-body {
   padding: 24px;
   flex: 1;
@@ -1063,7 +1029,6 @@ const downloadFile = async (format) => {
   line-height: 1.5;
 }
 
-/* Processed Table & Result List Section */
 .preview-results {
   width: 100%;
   display: flex;
@@ -1126,7 +1091,6 @@ const downloadFile = async (format) => {
   font-weight: 500;
 }
 
-/* Dynamic & Constrained Datatable Elements */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -1134,7 +1098,6 @@ const downloadFile = async (format) => {
   border-radius: 8px;
   max-height: 320px;
   background: #ffffff;
-  /* Smooth internal scrolling for desktop layouts */
   -webkit-overflow-scrolling: touch; 
 }
 
@@ -1165,10 +1128,104 @@ const downloadFile = async (format) => {
 .text-right { text-align: right; }
 .font-semibold { font-weight: 600; }
 
-/* Dynamic Mobile Transformation CSS (Busts Table down to Cards on Mobile Screens) */
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.btn-page {
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.775rem;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-page:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.775rem;
+  color: #64748b;
+}
+
+.card-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #f1f5f9;
+  background-color: #f8fafc;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.download-footer {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-download {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.815rem;
+  font-weight: 600;
+  border: 1px solid #16a34a;
+  background-color: #16a34a;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-download:hover:not(:disabled) {
+  background-color: #15803d;
+  border-color: #15803d;
+}
+
+.btn-secondary-download {
+  background-color: #ffffff;
+  color: #0284c7;
+  border-color: #0284c7;
+}
+
+.btn-secondary-download:hover:not(:disabled) {
+  background-color: #f0f9ff;
+  border-color: #0369a1;
+  color: #0369a1;
+}
+
+.btn-download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #cbd5e1;
+  background-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+.download-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Dynamic Mobile Transformation CSS */
 @media (max-width: 640px) {
   .table-container {
-    max-height: none; /* Let column stacks expand naturally */
+    max-height: none;
     border: none;
   }
 
@@ -1177,7 +1234,7 @@ const downloadFile = async (format) => {
   }
 
   .data-table thead {
-    display: none; /* Hide traditional headers */
+    display: none;
   }
 
   .data-table tr {
@@ -1195,15 +1252,14 @@ const downloadFile = async (format) => {
     align-items: center;
     padding: 6px 0;
     border-bottom: 1px dashed #f1f5f9;
-    white-space: normal; /* Wraps long text inside rows */
-    text-align: right !important; /* Force data right */
+    white-space: normal;
+    text-align: right !important;
   }
 
   .data-table td:last-child {
     border-bottom: none;
   }
 
-  /* Insert Dynamic Labels using attribute reflection mapping */
   .data-table td::before {
     content: attr(data-label);
     font-weight: 600;
@@ -1217,103 +1273,5 @@ const downloadFile = async (format) => {
     max-width: 60%;
     word-break: break-word;
   }
-}
-
-/* Micro Pagination Strip */
-.pagination-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 4px;
-  gap: 8px;
-}
-
-.btn-page {
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-page:hover:not(:disabled) {
-  background-color: #f8fafc;
-  border-color: #94a3b8;
-}
-
-.btn-page:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-info {
-  font-size: 0.775rem;
-  color: #64748b;
-  white-space: nowrap;
-}
-
-/* Card Final Data Export Footers */
-.download-footer {
-  padding: 16px 20px;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  gap: 12px;
-  background-color: #f8fafc;
-  flex-wrap: wrap;
-}
-
-.btn-download {
-  flex: 1;
-  min-width: 130px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background-color: #16a34a;
-  color: #ffffff;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-.btn-download:hover:not(:disabled) {
-  background-color: #15803d;
-}
-
-.btn-secondary-download {
-  background-color: #0284c7;
-}
-
-.btn-secondary-download:hover:not(:disabled) {
-  background-color: #0369a1;
-}
-
-.btn-download:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-
-.download-icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Utility Animations */
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 </style>

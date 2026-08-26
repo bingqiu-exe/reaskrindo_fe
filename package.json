@@ -8,6 +8,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@vueuse/core": "^14.4.0",
     "axios": "^1.12.2",
     "bulma": "^1.0.4",
     "chart.js": "^4.5.1",
