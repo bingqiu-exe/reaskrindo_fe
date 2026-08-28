@@ -256,7 +256,7 @@ import {
 // Configuration & API Endpoints
 const rawBaseUrl = process.env.VUE_APP_API_BASE_URL 
   || import.meta.env?.VITE_API_BASE_URL 
-  || 'https://reaskrindo-six.vercel.app';
+  || 'https://reaskrindo.onrender.com';
 
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/auto-mapping/api/process/`
