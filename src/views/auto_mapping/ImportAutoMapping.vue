@@ -254,8 +254,8 @@ import {
 } from 'lucide-vue-next'
 
 // Configuration & API Endpoints
-// const API_BASE_URL = 'http://127.0.0.1:8000'
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/auto-mapping/api/process/`
 const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
