@@ -314,7 +314,7 @@ const pageSize = ref(10)
 
 const route = useRoute()
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://reaskrindo-six.vercel.app';
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/finance/api/import-soa-finance/`
 const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
