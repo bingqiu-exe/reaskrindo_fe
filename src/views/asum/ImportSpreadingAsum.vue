@@ -297,7 +297,8 @@ const parsedData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-const API_BASE_URL = 'http://127.0.0.1:8000'
+// const API_BASE_URL = 'http://127.0.0.1:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/asum/api/import-soa-asum/`
 const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`
 
