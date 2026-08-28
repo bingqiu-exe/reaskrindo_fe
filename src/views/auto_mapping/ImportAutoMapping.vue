@@ -254,7 +254,10 @@ import {
 } from 'lucide-vue-next'
 
 // Configuration & API Endpoints
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://reaskrindo-six.vercel.app';
+const rawBaseUrl = process.env.VUE_APP_API_BASE_URL 
+  || import.meta.env?.VITE_API_BASE_URL 
+  || 'https://reaskrindo-six.vercel.app';
+
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/auto-mapping/api/process/`
 const DOWNLOAD_REF_API = `${API_BASE_URL}/auto-mapping/api/download-reference/`

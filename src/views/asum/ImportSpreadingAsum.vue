@@ -297,7 +297,10 @@ const parsedData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://reaskrindo-six.vercel.app';
+const rawBaseUrl = process.env.VUE_APP_API_BASE_URL 
+  || import.meta.env?.VITE_API_BASE_URL 
+  || 'https://reaskrindo-six.vercel.app';
+
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 const IMPORT_PLACEMENT_API = `${API_BASE_URL}/asum/api/import-soa-asum/`
